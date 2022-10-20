@@ -4,7 +4,7 @@ use payroll_service;
 
 -- UC2 -- Create A employee_payroll Table
 create table employee_payroll(
-	ID int auto_increment primary key, 
+	  
 	Name varchar(255),
 	Salary float,
 	StartDate date);
@@ -13,8 +13,8 @@ create table employee_payroll(
 insert into employee_payroll(Name, Salary, StartDate) values 
 	("Aman", 50000.00, '2017-02-11'),
 	("Samarth", 60000.00, '2016-01-03'),
-    ("Aarya", 40000.00, '2018-07-10'),
-    ("Jaya", 80000.00, '2009-08-12');
+	("Aarya", 40000.00, '2018-07-10'),
+	("Jaya", 80000.00, '2009-08-12');
     
 -- UC4 -- Retrieve employee_payroll data
 select * from employee_payroll;
@@ -33,4 +33,36 @@ select sum(Salary) as SumSalary,Gender from employee_payroll group by Gender;
 select avg(Salary) as AvgSalary,Gender from employee_payroll group by Gender; 
 select max(Salary) as MaxSalary,Gender from employee_payroll group by Gender; 
 select min(Salary) as MinSalary,Gender from employee_payroll group by Gender; 
-select count(Name) as EmployeeCount,Gender from employee_payroll group by Gender;  
+select count(Name) as EmployeeCount,Gender from employee_payroll group by Gender;
+
+-- UC8 -- Add Employee Phone, Department(not null), Address (using default values)
+select * from employee_payroll;
+alter table employee_payroll add Phone bigint;
+update employee_payroll set Phone = 1234567890; 
+update employee_payroll set Phone = 1234569874 where ID IN (2,4); 
+alter table employee_payroll add Address varchar(100) not null default 'Bangalore';
+alter table employee_payroll add Department varchar(250) default 'IT';
+
+-- UC9 -- Extend table to have Basic Pay, Deductions, Taxable Pay, Income Tax, Net Pay.
+alter table employee_payroll RENAME COLUMN Salary to BasicPay; 
+alter table employee_payroll add Deductions float not null default 1000.00;
+alter table employee_payroll add TaxablePay float not null default 0.00;
+alter table employee_payroll add IncomeTax float not null default 2000.00;
+alter table employee_payroll add NetPay float not null default 0.00;
+update employee_payroll set NetPay = (BasicPay-Deductions-TaxablePay-IncomeTax);
+select * from employee_payroll;
+
+-- UC10 -- Two departments for same employee
+insert into employee_payroll (Name, BasicPay, StartDate, Gender, Phone, Address, Department, Deductions, TaxablePay, IncomeTax, NetPay)
+			values ("Sam", 50000.00, '2017-02-11', 'M', 7894561230, 'Bangalore', 'S&M',1000.00, 59000.00, 2000.00,0.00);
+update employee_payroll set NetPay = (BasicPay - Deductions - IncomeTax);
+
+-- UC11 -- Create A table Employee_Department
+create table employee_department (
+	DepartmentID int NOT NULL  Primary Key,
+	EmployeeID int Not Null ,
+	Foreign Key (EmployeeID)
+	References employee_payroll(ID),
+	Department varchar(100)
+);
+select * from employee_department;
